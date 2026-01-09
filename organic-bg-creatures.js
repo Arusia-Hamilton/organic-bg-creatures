@@ -32,46 +32,46 @@
             this.trail = [];
         }
 
-update() {
-    this.trail.push({ x: this.x, y: this.y });
-    if (this.trail.length > CONFIG.trailLength) this.trail.shift();
+        update() {
+            this.trail.push({ x: this.x, y: this.y });
+            if (this.trail.length > CONFIG.trailLength) this.trail.shift();
 
-    const dx = this.x - mouse.x;
-    const dy = this.y - mouse.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+            const dx = this.x - mouse.x;
+            const dy = this.y - mouse.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (distance < CONFIG.avoidRange) {
-        const targetAngle = Math.atan2(dy, dx);
-        let angleDiff = targetAngle - this.angle;
-        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            if (distance < CONFIG.avoidRange) {
+                const targetAngle = Math.atan2(dy, dx);
+                let angleDiff = targetAngle - this.angle;
+                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+
+                this.angle += angleDiff * CONFIG.avoidStrength;
+                this.speed = CONFIG.speedBase * 2.0;
+            } else {
+                this.angle += (Math.random() - 0.5) * 0.15;
+
+                this.speed += (CONFIG.speedBase - this.speed) * 0.05;
+            }
+
+            this.x += Math.cos(this.angle) * this.speed;
+            this.y += Math.sin(this.angle) * this.speed;
+
+            const margin = 100;
+            const centerDistX = this.canvas.width / 2 - this.x;
+            const centerDistY = this.canvas.height / 2 - this.y;
+
+            if (this.x < margin || this.x > this.canvas.width - margin || 
+                this.y < margin || this.y > this.canvas.height - margin) {
         
-        this.angle += angleDiff * CONFIG.avoidStrength;
-        this.speed = CONFIG.speedBase * 2.0;
-    } else {
-        this.angle += (Math.random() - 0.5) * 0.15;
-        
-        this.speed += (CONFIG.speedBase - this.speed) * 0.05;
-    }
+                const angleToCenter = Math.atan2(centerDistY, centerDistX);
+                let diff = angleToCenter - this.angle;
+                while (diff < -Math.PI) diff += Math.PI * 2;
+                while (diff > Math.PI) diff -= Math.PI * 2;
 
-    this.x += Math.cos(this.angle) * this.speed;
-    this.y += Math.sin(this.angle) * this.speed;
-
-    const margin = 100;
-    const centerDistX = this.canvas.width / 2 - this.x;
-    const centerDistY = this.canvas.height / 2 - this.y;
-
-    if (this.x < margin || this.x > this.canvas.width - margin || 
-        this.y < margin || this.y > this.canvas.height - margin) {
-        
-        const angleToCenter = Math.atan2(centerDistY, centerDistX);
-        let diff = angleToCenter - this.angle;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-
-        this.angle += diff * 0.05;
-    }
-}
+                this.angle += diff * 0.05;
+            }
+        }
 
         draw(ctx) {
             // 軌跡（尾）の描画
